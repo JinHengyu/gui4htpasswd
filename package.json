@@ -1,0 +1,15 @@
+{
+  "name": "gui4htpasswd",
+  "version": "1.0.0",
+  "description": "web based gui for htpasswd file",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.19.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
