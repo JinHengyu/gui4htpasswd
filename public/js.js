@@ -1,5 +1,5 @@
 
-
+// 模拟vue，app对象存放根组件的数据和方法
 window.app = {
     formId: document.querySelector('section #id'),
     formPwd: document.querySelector('section #pwd'),
@@ -28,20 +28,30 @@ window.app = {
 
         } catch (err) {
             alert(err.message || err)
-            console.log(123)
         }
     },
 
 
     async  dropUser({ id }) {
-        try {
+    
 
 
+            
+            const res = await fetch('/drop/user', {
+                method: 'DELETE',
+                body: JSON.stringify({ id }),
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                })
+            })
+            if (!res.ok) throw decodeURIComponent(res.headers.get('error'))
+            // app.htpasswd.list = app.htpasswd.list.concat({ id })
+            app.htpasswd.list = app.htpasswd.list.filter(u=>u.id!==id)
+
+             await res.json()
 
 
-        } catch (err) {
-            alert(err.message || err)
-        }
+      
     }
 
 
@@ -67,21 +77,7 @@ window.app = {
             }));
         app.htpasswd.loading = false;
 
-        // ul.addEventListener('click', async event => {
-        //     try {
-
-        //         if (event.target.tagName.toLowercase() !== 'button') return
-
-        //         userId = event.target.parentNode.getAttribute('data-userId')
-        //         if (!userId) return;
-        //         await dropUser({ id: userId });
-        //         alert(`${userId} 删除成功`)
-        //     } catch (err) {
-        //         alert(err.message || err)
-
-        //     }
-
-        // })
+    
 
 
     } catch (err) {

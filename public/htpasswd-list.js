@@ -5,12 +5,12 @@ const dataKey = Symbol();
 
 export default class extends window.HTMLElement {
 
-    constructor(list = []) {
-        super();
+  constructor(list = []) {
+    super();
 
-        this[shadowId] = this.attachShadow({ mode: 'closed' })
+    this[shadowId] = this.attachShadow({ mode: 'closed' })
 
-        this[shadowId].innerHTML = `<div>
+    this[shadowId].innerHTML = `<div>
         <style>
             .lds-dual-ring {
                 display: inline-block;
@@ -43,36 +43,45 @@ export default class extends window.HTMLElement {
             <ul></ul>
         </div>`
 
+    this[shadowId].querySelector('ul').addEventListener('click', async event => {
+      try {
+
+        if (event.target.tagName !== 'button') return
+        const userId = event.target.getAttribute('data-userId')
+        await app.dropUser({ id: userId })
+      } catch (err) {
+        alert(err.message || err)
+      }
+    })
+
+    this.list = list
 
 
-        this.list = list
-
-
-    }
+  }
 
 
 
-    set list(list) {
-        this[dataKey] = list
+  set list(list) {
+    this[dataKey] = list
 
-        this[shadowId].querySelector('ul').innerHTML = `
-                ${list.map(({ id }) => `<li>${id} <button>删除</button> </li>`).join('')}
+    this[shadowId].querySelector('ul').innerHTML = `
+                ${list.map(({ id }) => `<li>${id} <button data-userId="${id}">删除</button> </li>`).join('')}
              `;
+  }
+
+  get list() {
+    return this[dataKey]
+  }
+
+
+  set loading(bool = true) {
+    if (bool === true) {
+      this[shadowId].querySelector('.lds-dual-ring').style.display = 'block'
+    } else {
+      this[shadowId].querySelector('.lds-dual-ring').style.display = 'none'
+
     }
-
-    get list() {
-        return this[dataKey]
-    }
-
-
-    set loading(bool = true) {
-        if (bool === true) {
-            this[shadowId].querySelector('.lds-dual-ring').style.display = 'block'
-        } else {
-            this[shadowId].querySelector('.lds-dual-ring').style.display = 'none'
-
-        }
-    }
+  }
 
 
 

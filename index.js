@@ -45,8 +45,9 @@ async function onRequest(req, res) {
 
         else if (req.paths[0] === 'get') await require('./route/get.js')(req, res);
         else if (req.paths[0] === 'add') await require('./route/add.js')(req, res);
+        else if (req.paths[0] === 'drop') await require('./route/drop.js')(req, res);
 
-
+        
 
 
         else throw '找不到资源：' + req.url

@@ -14,12 +14,12 @@
 
     <script type="module">
 
-        import uisModal from '/get/public/uis-modal.js'
-        import htpasswd from '/get/public/htpasswd-list.js'
 
-        window.customElements.define('uis-modal', uisModal)
-        window.customElements.define('htpasswd-list', htpasswd)
+        window.customElements.define('uis-modal', import('/get/public/uis-modal.js'))
+        window.customElements.define('htpasswd-list', import('/get/public/htpasswd-list.js'))
 
+
+        // 主函数
         import('/get/public/js.js')
 
 
@@ -44,6 +44,7 @@
     <br>
     <br>
 
+    <h3>所有用户：</h3>
     <htpasswd-list></htpasswd-list>
 
 
