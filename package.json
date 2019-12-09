@@ -4,7 +4,11 @@
   "description": "web based gui for htpasswd file",
   "main": "index.js",
   "dependencies": {
-    "body-parser": "^1.19.0"
+    "apache-md5": "^1.1.2",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "jsonwebtoken": "^8.5.1",
+    "unix-crypt-td-js": "^1.1.4"
   },
   "devDependencies": {},
   "scripts": {

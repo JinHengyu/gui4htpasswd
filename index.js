@@ -7,8 +7,8 @@ global.cfg = require('./cfg.js')
 
 //创建HTTP2服务器
 const server = http2.createSecureServer({
-    cert: fs.readFileSync(path.join(__dirname, './ssl/bsh.cer')),
-    key: fs.readFileSync(path.join(__dirname, './ssl/bsh.key')),
+    cert: fs.readFileSync(path.join(__dirname, './ssl/localhost.crt')),
+    key: fs.readFileSync(path.join(__dirname, './ssl/localhost.key')),
 }, onRequest)
 
 // Request 事件
@@ -47,7 +47,7 @@ async function onRequest(req, res) {
         else if (req.paths[0] === 'add') await require('./route/add.js')(req, res);
         else if (req.paths[0] === 'drop') await require('./route/drop.js')(req, res);
 
-        
+
 
 
         else throw '找不到资源：' + req.url
@@ -62,3 +62,12 @@ async function onRequest(req, res) {
 }
 server.listen(8080)
 console.log('https://localhost:8080')
+
+
+
+http2.Http2ServerResponse.prototype.json = function (obj) {
+    // this.statusCode=200;
+    this.writeHead(200, { 'Content-Type': 'application/json' })
+    this.write(JSON.stringify(obj))
+    this.end()
+}

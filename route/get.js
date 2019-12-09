@@ -1,5 +1,8 @@
 const path = require('path')
 const fs = require('fs')
+// const jwtCheck = require('../tools/jwtCheck.js')
+const jwt = require('jsonwebtoken');
+
 
 module.exports = async (req, res) => {
     // req.subUrl = req.subUrl.replace(/^\/get\//,'')
@@ -15,10 +18,11 @@ module.exports = async (req, res) => {
         await new Promise((resolve, reject) => {
             res.writeHead(200, {
                 'Content-Type': {
+                    'html': 'text/html',
                     'js': 'text/javascript',
                     'css': 'text/css',
-                    'ico':'image/ico'
-                }[req.paths[req.paths.length - 1].split('.').reverse()[0]]
+                    'ico': 'image/ico'
+                }[req.paths[req.paths.length - 1].split('.').reverse()[0]] || ''
             })
 
             r = fs.createReadStream(absPath)
@@ -58,6 +62,57 @@ module.exports = async (req, res) => {
         })
 
     }
+
+
+    else if (req.paths[0] === 'cfg') {
+
+
+        let user = '';
+
+
+
+        authorization = req.headers['authorization']
+
+        // console.log(authorization)
+        
+        if (!authorization) {
+            
+            res.json({ user })
+            
+            return
+        }
+        
+        
+        
+        try {
+            user = jwt.verify(authorization, cfg.jwtSecret).user;
+        } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                res.json({ user: '' })
+                return
+            }
+            else if (err.name === 'JsonWebTokenError') throw '凭证损坏：' + err.message
+            else{
+                console.log(err)
+
+            }
+        }
+
+
+
+
+        res.json(
+            {
+                user
+            }
+
+
+        )
+
+    }
+
+
+
     else throw '找不到资源：' + req.url
 
 }

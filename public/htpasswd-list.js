@@ -7,6 +7,7 @@ export default class extends window.HTMLElement {
 
   constructor(list = []) {
     super();
+    const _this = this;
 
     this[shadowId] = this.attachShadow({ mode: 'closed' })
 
@@ -46,11 +47,15 @@ export default class extends window.HTMLElement {
     this[shadowId].querySelector('ul').addEventListener('click', async event => {
       try {
 
-        if (event.target.tagName !== 'button') return
+        if (event.target.tagName.toLowerCase() !== 'button') return
         const userId = event.target.getAttribute('data-userId')
-        await app.dropUser({ id: userId })
+        if (!confirm(`确定删除${userId}？`)) return
+
+        await _this.dropUser({ id: userId })
+        window.alert(`${userId}已删除`)
       } catch (err) {
         alert(err.message || err)
+        _this.loading = false
       }
     })
 
@@ -83,6 +88,27 @@ export default class extends window.HTMLElement {
     }
   }
 
+
+
+
+  async  dropUser({ id }) {
+
+
+
+
+    this.loading = true
+    const res =
+
+      await app.fetch('/drop/user', { body: JSON.stringify({ id }), mime: 'application/json' })
+
+    app.htpasswd.list = app.htpasswd.list.filter(u => u.id !== id)
+
+    // await res.arrayBuffer()
+    this.loading = false
+
+
+
+  }
 
 
 }

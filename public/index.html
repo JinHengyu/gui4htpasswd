@@ -14,10 +14,15 @@
 
     <script type="module">
 
+        // import uisModal from '/get/public/uis-modal.js'
+        import loginSignup from '/get/public/login-signup.js'
+        import htpasswdList from '/get/public/htpasswd-list.js'
+        // import  cfg from '/get/cfg'
 
-        window.customElements.define('uis-modal', import('/get/public/uis-modal.js'))
-        window.customElements.define('htpasswd-list', import('/get/public/htpasswd-list.js'))
+        window.customElements.define('login-signup', loginSignup)
+        window.customElements.define('htpasswd-list', htpasswdList)
 
+        // window.cfg = cfg
 
         // 主函数
         import('/get/public/js.js')
@@ -30,15 +35,7 @@
 
     <h1>verdaccio用户管理</h1>
 
-    <section>
-
-
-        用户名：<input type="text" id="id">
-        密码：<input type="text" id="pwd">
-        <button
-            onclick="app.addUser({id:app.formId.value,pwd:app.formPwd.value})">添加用户</button>
-    </section>
-
+<login-signup></login-signup>
 
     <br>
     <br>
