@@ -7,5 +7,6 @@ module.exports = {
     , drop_last: Date.now()-60*1000, 
     // 1分钟
     drop_interval: 60 * 1000,
-    jwtSecret:'gui4passwd'
+    jwtSecret:'gui4passwd',
+    whiteList:['admin']
 }

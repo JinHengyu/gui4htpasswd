@@ -39,7 +39,7 @@ export default class extends window.HTMLElement {
               }
             </style>
               
-            <div class="lds-dual-ring"></div>
+            <div class="lds-dual-ring" style="display:none"></div>
 
             <ul></ul>
         </div>`

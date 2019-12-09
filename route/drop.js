@@ -14,13 +14,13 @@ module.exports = async (req, res) => {
 
         let { id } = req.body;
 
-        jwtCheck(req)
+        if (!cfg.whiteList.includes(jwtCheck(req).id)) throw `没有权限`
 
         const ms2wait = cfg.drop_last + cfg.drop_interval - Date.now();
         if (ms2wait >= 0) throw `删除过于频繁, 再等待 ${~~(ms2wait / 1000)} 秒`
 
         const htpasswdRaw = await new Promise((resolve, reject) => {
-            fs.readFile(cfg.htpasswd,'utf-8', (err, data) => {
+            fs.readFile(cfg.htpasswd, 'utf-8', (err, data) => {
                 if (err) reject(err)
                 else resolve(data.toString())
             })
@@ -42,23 +42,23 @@ module.exports = async (req, res) => {
         await new Promise((resolve, reject) => {
             htpasswd2write = Object.entries(users).map(([id, pwd]) => id + ':' + pwd).join('\n');
             // console.log(htpasswd2write)
-            fs.writeFile(cfg.htpasswd, htpasswd2write, (err) => { 
+            fs.writeFile(cfg.htpasswd, htpasswd2write, (err) => {
                 if (err) reject(err)
                 else resolve()
             });
 
         })
 
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
         cfg.drop_last = Date.now();
-        
-        res.end({id});
+
+        res.end({ id });
 
 
     }

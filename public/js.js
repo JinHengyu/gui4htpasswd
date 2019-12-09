@@ -43,18 +43,15 @@ window.app = {
         // console.log(123,user)
 
         app.loginSignup.mainUser = user || null
-        if (!user) localStorage.removeItem('token')
-
-        app.htpasswd.loading = true;
-        const r = await fetch('/get/list')
-        if (!r.ok) {
-            throw decodeURIComponent(r.headers.get('error'))
+        if (!user) {
+            localStorage.removeItem('token')
+            return
         }
+        app.htpasswd.loading = true;
+        const htpasswd = await app.fetch('/get/list', { parser: 'text' })
 
-        const htpasswd = await r.text();
-
-        const htpasswdList = document.querySelector('htpasswd-list')
-        htpasswdList.list =
+        // const htpasswdList = document.querySelector('htpasswd-list')
+        app.htpasswd.list =
             htpasswd.split('\n').filter(l => l).map(line => ({
                 id: line.split(':')[0]
             }));

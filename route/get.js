@@ -67,35 +67,27 @@ module.exports = async (req, res) => {
     else if (req.paths[0] === 'cfg') {
 
 
+        // falsy的user提示前端删除token
         let user = '';
 
 
 
         authorization = req.headers['authorization']
 
-        // console.log(authorization)
-        
         if (!authorization) {
-            
+
             res.json({ user })
-            
+
             return
         }
-        
-        
-        
+
+
+
         try {
             user = jwt.verify(authorization, cfg.jwtSecret).user;
         } catch (err) {
-            if (err.name === 'TokenExpiredError') {
-                res.json({ user: '' })
-                return
-            }
-            else if (err.name === 'JsonWebTokenError') throw '凭证损坏：' + err.message
-            else{
-                console.log(err)
-
-            }
+            res.json({ user: '' })
+            return
         }
 
 
