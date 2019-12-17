@@ -1,18 +1,18 @@
 {
   "name": "gui4htpasswd",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "web based gui for htpasswd file",
   "main": "index.js",
   "dependencies": {
+    "jsonwebtoken": "^8.5.1",
     "apache-md5": "^1.1.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
-    "jsonwebtoken": "^8.5.1",
     "unix-crypt-td-js": "^1.1.4"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "run": "node index.js"
   },
   "author": "",
   "license": "ISC"

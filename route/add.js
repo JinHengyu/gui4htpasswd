@@ -5,7 +5,7 @@ const crypto = require('crypto')
 const matchPwdAndHash = require('../tools/matchPwdAndHash.js')
 const lineReader = require('../tools/lineReader.js')
 const jwt = require('jsonwebtoken');
-const jwtCheck = require('../tools/jwtCheck.js')
+// const jwtCheck = require('../tools/jwtCheck.js')
 
 
 module.exports = async (req, res) => {
@@ -20,7 +20,8 @@ module.exports = async (req, res) => {
 
         let { id, pwd } = req.body
 
-        jwtCheck(req)
+        // jwtCheck(req)
+        if (!req.session.user) throw `请登录`;
 
 
         id = id.trim();
@@ -61,25 +62,30 @@ module.exports = async (req, res) => {
     }
 
 
-
+// entry point
     else if (req.paths[0] === 'login') {
 
         const { id, pwd } = req.body
 
 
         hash = await new Promise((resolve, reject) => {
-
-            r =
-                fs.createReadStream(cfg.htpasswd)
+            let lineIndex = 1
+            r = fs.createReadStream(cfg.htpasswd, 'utf-8')
             r.pipe(new lineReader()).on('data', line => {
+                lineIndex++
+                if (lineIndex > cfg.maxLines) {
+                    r.destroy()
+                    reject(`抱歉，verdaccio总用户数量超过了${cfg.maxLines}，请联系管理员修复`)
+                }
                 const [idid, hash] = line.split(':')
                 if (idid === id) {
+                    // console.log(line[0])
                     resolve(hash)
                     r.destroy()
                     return
                 }
             })
-            r.on('end',e=>{
+            r.on('end', e => {
                 reject('用户名不存在')
             })
             r.on('error', err => reject(err))
@@ -87,13 +93,13 @@ module.exports = async (req, res) => {
 
 
 
-        if(matchPwdAndHash(pwd,hash)){
+        if (matchPwdAndHash(pwd, hash)) {
             res.end(jwt.sign({
                 // 1h
                 exp: ~~(Date.now() / 1000) + (60 * 60),
-                user: {id}
-              }, cfg.jwtSecret))
-        }else{
+                user: { id, admin: cfg.whiteList.includes(id) }
+            }, cfg.jwtSecret))
+        } else {
             throw '密码错误'
         }
 

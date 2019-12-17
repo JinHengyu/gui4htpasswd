@@ -1,171 +1,152 @@
-
 const shadowId = Symbol();
 // 主要data是user对象
 const dataId = Symbol();
+// main user:登录的用户
+const mainUserId = Symbol();
 const domId = Symbol();
 // 登录&添加用户（注册）合二为一
 
 export default class extends window.HTMLElement {
+    constructor(list = []) {
+        super();
+        const _this = this;
 
-  constructor(list = []) {
-    super();
-    const _this = this;
+        this[dataId] = {
+            id: "",
+            pwd: ""
+        };
+        this[shadowId] = this.attachShadow({ mode: "closed" });
 
-    this[dataId] = {
-      id: '',
-      pwd: ''
-    }
-    this[shadowId] = this.attachShadow({ mode: 'closed' })
-
-    this[shadowId].innerHTML = `<div>
+        // 按钮样式模拟Google
+        this[shadowId].innerHTML = `<div>
+ 
+              
       <style>
-         #loader {
-          border: 16px solid #f3f3f3;
-          border-radius: 50%;
-          border-top: 16px solid #3498db;
-          width: 120px;
-          height: 120px;
-          -webkit-animation: spin 2s linear infinite; /* Safari */
-          animation: spin 2s linear infinite;
+        section{
+          width: 100px;
+          display: inline-block;
         }
-        
-        /* Safari */
-        @-webkit-keyframes spin {
-          0% { -webkit-transform: rotate(0deg); }
-          100% { -webkit-transform: rotate(360deg); }
+
+        button{
+          background-color: #f2f2f2;
+          border: 1px solid #f2f2f2;
+          border-radius: 4px;
+          color: #5F6368;
+          font-family: arial,sans-serif;
+          font-size: 14px;
+          margin: 11px 4px;
+          padding: 0 16px;
+          line-height: 27px;
+          height: 36px;
+          text-align: center;
+          cursor: pointer;
         }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+
+        button:hover{
+          box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+          background-color: #f8f8f8;
+          border: 1px solid #c6c6c6;
+          color: #222;
         }
       </style>
-              
         
-        
-        用户名：<input type="text" id="id">
+      <main>
+        <section>用户名：</section> <input type="text" id="id">
         <br>
-        密码：<input type="password" id="pwd">
+        <section>密码：</section> <input type="password" id="pwd">
         <br>
-        <button id="signup" onclick="app.addUser({id:app.formId.value,pwd:app.formPwd.value})">添加用户</button>
-        <button id="login" onclick="app.login({id:app.formId.value,pwd:app.formPwd.value})">登录</button>
+        <button id="signup">添加用户</button>
+        <button id="log">登录</button>
+      </main>
+      
+       </div>`;
 
-        <div id="loading" style="display:none"></div>
-       </div>`
+        this[domId] = {
+            id: _this[shadowId].querySelector("#id"),
+            pwd: _this[shadowId].querySelector("#pwd"),
+            log: _this[shadowId].querySelector("#log"),
+            signup: _this[shadowId].querySelector("#signup")
+        };
 
-    this[domId] = {
-      id: _this[shadowId].querySelector('#id'),
-      pwd: _this[shadowId].querySelector('#pwd'),
-      login: _this[shadowId].querySelector('#login'),
-      signup: _this[shadowId].querySelector('#signup'),
+        // 双向绑定
+        this[domId].id.oninput = async event => (_this[dataId].id = event.target.value);
+        this[domId].pwd.oninput = async event => (_this[dataId].pwd = event.target.value);
+        this[domId].signup.onclick = async event => {
+            _this.addUser({ id: _this[dataId].id, pwd: _this[dataId].pwd }).catch(err => {
+                window.alert(err.message || err);
+            });
+        };
+
+        _this.mainUser = null;
     }
 
-    // 双向绑定
-    this[domId].id.oninput = async event => _this[dataId].id = event.target.value
-    this[domId].pwd.oninput = async event => _this[dataId].pwd = event.target.value
-    this[domId].signup.onclick = async event => {
-      _this.addUser({ id: _this[dataId].id, pwd: _this[dataId].pwd })
-        .catch(err => {
-          window.alert(err.message || err)
-        })
+    set mainUser(user) {
+        const _this = this;
+        _this[mainUserId] = user;
+        if (!user) {
+            _this[domId].log.innerHTML = "登录";
+            _this[domId].log.onclick = async event => {
+                _this.login({ id: _this[dataId].id, pwd: _this[dataId].pwd }).catch(err => {
+                    window.alert(err.message || err);
+                });
+            };
+        } else {
+            _this[domId].log.innerHTML = `登出（${user.id}）`;
+            _this[domId].log.onclick = async event => {
+                window.localStorage.removeItem("token");
+                window.location.reload();
+            };
+        }
     }
 
-    _this.mainUser = null
-
-  }
-
-  set mainUser(user) {
-    const _this = this;
-    if (!user) {
-      _this[domId].login.innerHTML = '登录'
-      _this[domId].login.onclick = async event => {
-        _this.login({ id: _this[dataId].id, pwd: _this[dataId].pwd })
-          .catch(err => {
-            window.alert(err.message || err)
-          })
-      }
+    get mainUser() {
+        return this[mainUserId];
     }
-    else {
-      _this[domId].login.innerHTML = `登出（${user.id}）`
-      _this[domId].login.onclick = async event => {
-        window.localStorage.removeItem('token')
-        window.location.reload()
-      }
+
+    set user({ id, pwd }) {
+        this[dataId] = { id, pwd };
+
+        this[shadowId].querySelector("#id").value = id;
+        this[shadowId].querySelector("#pwd").value = pwd;
     }
-  }
 
-
-  set user({ id, pwd }) {
-    this[dataId] = { id, pwd }
-
-    this[shadowId].querySelector('#id').value = id;
-    this[shadowId].querySelector('#pwd').value = pwd;
-  }
-
-  get user() {
-    return this[dataId]
-  }
-
-
-  set loading(bool = true) {
-    if (bool === true) {
-      this[shadowId].querySelector('#loading').style.display = 'block'
-    } else {
-      this[shadowId].querySelector('#loading').style.display = 'none'
-
+    // 当前输入的user
+    get user() {
+        return this[dataId];
     }
-  }
 
+    async addUser({ id, pwd }) {
+        id = id.trim();
+        pwd = pwd.trim();
+        if (!id || !pwd) throw "用户名或密码为空";
+        if (app.htpasswd.list.find(u => u.id === id)) throw `${id} 已经存在`;
 
+        app.loading = true;
+        const newUser = await app.fetch("/add/user", {
+            body: JSON.stringify({ id, pwd }),
+            mime: "application/json",
+            parser: "json"
+        });
 
+        window.app.htpasswd.list = app.htpasswd.list.concat({ id });
 
-  async  addUser({ id, pwd }) {
-    id = id.trim();
-    pwd = pwd.trim();
-    if (!id || !pwd) throw '用户名或密码为空'
-    if (app.htpasswd.list.find(u => u.id === id)) throw `${id} 已经存在`
+        // const newUser = await res.json()
+        app.loading = false;
+    }
 
+    async login({ id, pwd }) {
+        id = id.trim();
+        pwd = pwd.trim();
+        if (!id || !pwd) throw "用户名或密码为空";
 
-    this.loading = true
-    const newUser = await app.fetch('/add/user', {
-      body: JSON.stringify({ id, pwd }),
-      mime: 'application/json',
-      parser: 'json'
-    })
+        const token = await app.fetch("/add/login", {
+            body: JSON.stringify({ id, pwd }),
+            mime: "application/json",
+            parser: "text"
+        });
 
-    window.app.htpasswd.list = app.htpasswd.list.concat({ id })
+        localStorage.token = token;
 
-    // const newUser = await res.json()
-    this.loading = true
-
-
-  }
-
-
-
-  async login({ id, pwd }) {
-    id = id.trim();
-    pwd = pwd.trim();
-    if (!id || !pwd) throw '用户名或密码为空'
-
-    const res = await fetch('/add/login', {
-      method: 'POST',
-      body: JSON.stringify({ id, pwd }),
-      headers: new Headers({
-        'Content-Type': 'application/json'
-      })
-    })
-
-    if (!res.ok) throw decodeURIComponent(res.headers.get('error'))
-
-    const token = await res.text()
-
-    // console.log(token)  
-    localStorage.token = token;
-
-    location.reload();
-
-  }
-
-
+        location.reload();
+    }
 }
