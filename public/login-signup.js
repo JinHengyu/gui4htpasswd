@@ -1,9 +1,11 @@
-const shadowId = Symbol();
-// 主要data是user对象
-const dataId = Symbol();
-// main user:登录的用户
-const mainUserId = Symbol();
-const domId = Symbol();
+"use strict";
+
+const $shadow = Symbol();
+// 表单对应的human对象
+const $human = Symbol();
+//  登录的用户
+const $user = Symbol();
+const $dom = Symbol();
 // 登录&添加用户（注册）合二为一
 
 export default class extends window.HTMLElement {
@@ -11,14 +13,12 @@ export default class extends window.HTMLElement {
         super();
         const _this = this;
 
-        this[dataId] = {
-            id: "",
-            pwd: ""
-        };
-        this[shadowId] = this.attachShadow({ mode: "closed" });
+        // (null).test;
+
+        this[$shadow] = this.attachShadow({ mode: "closed" });
 
         // 按钮样式模拟Google
-        this[shadowId].innerHTML = `<div>
+        this[$shadow].innerHTML = `<div>
  
               
       <style>
@@ -56,92 +56,101 @@ export default class extends window.HTMLElement {
         <section>密码：</section> <input type="password" id="pwd">
         <br>
         <button id="signup">添加用户</button>
-        <button id="log">登录</button>
+        <button id="log">登录/登出</button>
       </main>
       
        </div>`;
+    }
 
-        this[domId] = {
-            id: _this[shadowId].querySelector("#id"),
-            pwd: _this[shadowId].querySelector("#pwd"),
-            log: _this[shadowId].querySelector("#log"),
-            signup: _this[shadowId].querySelector("#signup")
+    connectedCallback() {
+        const _this = this;
+
+        this[$human] = {
+            id: "",
+            pwd: ""
+        };
+
+        this[$dom] = {
+            id: _this[$shadow].querySelector("#id"),
+            pwd: _this[$shadow].querySelector("#pwd"),
+            log: _this[$shadow].querySelector("#log"),
+            signup: _this[$shadow].querySelector("#signup")
         };
 
         // 双向绑定
-        this[domId].id.oninput = async event => (_this[dataId].id = event.target.value);
-        this[domId].pwd.oninput = async event => (_this[dataId].pwd = event.target.value);
-        this[domId].signup.onclick = async event => {
-            _this.addUser({ id: _this[dataId].id, pwd: _this[dataId].pwd }).catch(err => {
+        this[$dom].id.oninput = async event => (_this[$human].id = event.target.value);
+        this[$dom].pwd.oninput = async event => (_this[$human].pwd = event.target.value);
+        this[$dom].signup.onclick = async event => {
+            _this.addHuman({ id: _this[$human].id, pwd: _this[$human].pwd }).catch(err => {
                 window.alert(err.message || err);
             });
         };
 
-        _this.mainUser = null;
+        this.user = null;
     }
 
-    set mainUser(user) {
+    set user(user) {
         const _this = this;
-        _this[mainUserId] = user;
+        _this[$user] = user;
         if (!user) {
-            _this[domId].log.innerHTML = "登录";
-            _this[domId].log.onclick = async event => {
-                _this.login({ id: _this[dataId].id, pwd: _this[dataId].pwd }).catch(err => {
+            // console.log(_this[$dom].log)
+            _this[$dom].log.innerHTML = "登录";
+            _this[$dom].log.onclick = async event => {
+                _this.login({ id: _this[$human].id, pwd: _this[$human].pwd }).catch(err => {
                     window.alert(err.message || err);
                 });
             };
         } else {
-            _this[domId].log.innerHTML = `登出（${user.id}）`;
-            _this[domId].log.onclick = async event => {
+            _this[$dom].log.innerHTML = `登出（${user.id}）`;
+            _this[$dom].log.onclick = async event => {
                 window.localStorage.removeItem("token");
                 window.location.reload();
             };
         }
     }
 
-    get mainUser() {
-        return this[mainUserId];
-    }
-
-    set user({ id, pwd }) {
-        this[dataId] = { id, pwd };
-
-        this[shadowId].querySelector("#id").value = id;
-        this[shadowId].querySelector("#pwd").value = pwd;
-    }
-
-    // 当前输入的user
     get user() {
-        return this[dataId];
+        return this[$user];
     }
 
-    async addUser({ id, pwd }) {
+    set human({ id, pwd }) {
+        this[$human] = { id, pwd };
+
+        this[$dom].id.value = id;
+        this[$dom].pwd.value = pwd;
+    }
+
+    // 当前输入的human
+    get human() {
+        return this[$human];
+    }
+
+    async addHuman({ id, pwd }) {
         id = id.trim();
-        pwd = pwd.trim();
+        // pwd = pwd.trim();
         if (!id || !pwd) throw "用户名或密码为空";
         if (app.htpasswd.list.find(u => u.id === id)) throw `${id} 已经存在`;
 
-        app.loading = true;
-        const newUser = await app.fetch("/add/user", {
+        // app.loading = true;
+        const newHuman = await app.fetch("/add/user", {
             body: JSON.stringify({ id, pwd }),
-            mime: "application/json",
+            reqMime: "application/json",
             parser: "json"
         });
 
         window.app.htpasswd.list = app.htpasswd.list.concat({ id });
 
-        // const newUser = await res.json()
         app.loading = false;
     }
 
     async login({ id, pwd }) {
         id = id.trim();
-        pwd = pwd.trim();
+        // pwd = pwd.trim();
         if (!id || !pwd) throw "用户名或密码为空";
 
         const token = await app.fetch("/add/login", {
             body: JSON.stringify({ id, pwd }),
-            mime: "application/json",
+            reqMime: "application/json",
             parser: "text"
         });
 

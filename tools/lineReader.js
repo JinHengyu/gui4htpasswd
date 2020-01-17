@@ -1,4 +1,4 @@
-const Transform = require("stream").Transform;
+const { Transform } = require("stream");
 
 module.exports = class extends Transform {
     constructor(options = {}) {
@@ -22,7 +22,7 @@ module.exports = class extends Transform {
 
         lines.forEach(line => this.push(line + this.eol));
 
-        // this.push或next二选一传递chunk
+        // backpressure?
         next();
     }
     // 最后一个chunk结束后

@@ -5,40 +5,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Verdaccio用户管理</title>
+
+
     <link rel="shortcut icon" href="get/public/favicon.ico" />
-    <title>verdaccio用户管理</title>
 
 
 
 
 
 
-    <script type="module" async>
+    <!-- 加载所有组件 -->
+    <script type="module">
 
-        // import uisModal from '/get/public/uis-modal.js'
-        import loginSignup from '/get/public/login-signup.js'
-        import htpasswdList from '/get/public/htpasswd-list.js'
-        // import  cfg from '/get/cfg'
 
-        window.customElements.define('login-signup', loginSignup)
-        window.customElements.define('htpasswd-list', htpasswdList)
+        import loginSignup from '/get/public/login-signup.js';
+        import htpasswdList from '/get/public/htpasswd-list.js';
 
-        // window.cfg = cfg
+        window.customElements.define('login-signup', loginSignup);
+        window.customElements.define('htpasswd-list', htpasswdList);
 
-        // 主函数
-        import('/get/public/js.js')
+
+        import('/get/public/js.js');
 
 
     </script>
+
+
+
+
+
+
 </head>
 
 <body>
 
+    <!-- 不报错: -->
+    <!-- <aaa></aaa> -->
+
     <style>
-        body{
+        body {
             padding: 20px;
         }
-        header{
+
+        header {
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -47,10 +57,10 @@
 
 
     <header>
-        <h1>verdaccio用户管理</h1>
+        <h1>Verdaccio用户管理</h1>
         <span id="version"></span>
     </header>
-    
+
 
     <login-signup></login-signup>
 
@@ -93,6 +103,11 @@
 
     <div id="loading" style="display:none"></div>
 
+
+
+
+    <!-- 主函数/主组件 -->
+    <!-- <script src="/get/public/js.js"></script> -->
 
 
 </body>

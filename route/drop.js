@@ -1,14 +1,19 @@
 // const path = require('path')
-const lineReader = require("../tools/lineReader.js");
 const fs = require("fs");
-const bodyParser = require("body-parser");
-// const jwtCheck = require("../tools/jwtCheck.js");
+const lineReader = require("../tools/lineReader.js");
+const bodyParser = require("../tools/bodyParser.js");
+const log = require("../tools/log.js");
 
 module.exports = async (req, res) => {
     req.paths.shift();
-    await new Promise(resolve => bodyParser.json()(req, res, resolve));
+    // await new Promise(resolve => bodyParser.json()(req, res, resolve));
 
+    await bodyParser.json(req, res);
+
+    // {}[req.paths[0]]
     if (req.paths[0] === "user") {
+        // console.log("BODY: ", req.body);
+
         let { id } = req.body;
 
         if (!req.session.user) throw `请登录`;
@@ -23,12 +28,10 @@ module.exports = async (req, res) => {
         //         else resolve(data.toString())
         //     })
 
-        // })
-
         const htpasswdLines = await new Promise((resolve, reject) => {
             const lines = [];
 
-            r = fs.createReadStream(cfg.htpasswd, "utf-8");
+            const r = fs.createReadStream(cfg.htpasswd, "utf-8");
 
             r.pipe(new lineReader()).on("data", line => {
                 lines.push(line);
@@ -56,7 +59,7 @@ module.exports = async (req, res) => {
         delete users[id];
 
         await new Promise((resolve, reject) => {
-            htpasswd2write = Object.entries(users)
+            const htpasswd2write = Object.entries(users)
                 .map(([id, pwd]) => id + ":" + pwd)
                 .join("\n");
             // console.log(htpasswd2write)
@@ -66,8 +69,10 @@ module.exports = async (req, res) => {
             });
         });
 
+        log.add(`${id}被${req.session.user.id}删掉了`);
+
         cfg.drop_last = Date.now();
 
-        res.end({ id });
-    } else throw "找不到资源：" + req.url;
+        res.json({ id });
+    } else throw "找不到资源：" + req.url + "【你他喵是黑客吧】";
 };
